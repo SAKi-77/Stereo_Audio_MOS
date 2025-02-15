@@ -36,6 +36,7 @@
                 
                 audioFiles.forEach((file, i) => {
                     const audioUrl = `https://raw.githubusercontent.com/SAKi-77/Stereo_Audio_MOS/main/sample_audio/${getFolder(file)}/${file}`;
+                    console.log('Generated Audio URL:', audioUrl); // 打印生成的音频 URL，查看是否正确
                     audioElement.innerHTML += `
                         <p><strong>Audio ${i + 1}</strong></p>
                         <audio controls>
