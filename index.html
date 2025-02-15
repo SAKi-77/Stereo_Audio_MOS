@@ -14,29 +14,37 @@
             return files.sort(() => Math.random() - 0.5).slice(0, num);
         }
 
+        // 生成完整的音频 URL
+        function getAudioUrl(filePath) {
+            // 拼接完整的 URL
+            return `https://raw.githubusercontent.com/SAKi-77/Stereo_Audio_MOS/main/${filePath}`;
+        }
+
         // 页面加载后动态显示音频
         window.onload = function () {
             const selectedGroundTruthFiles = getRandomAudioFiles(groundTruthFiles, 10);
             const audioContainer = document.getElementById("audioContainer");
-            
+
             selectedGroundTruthFiles.forEach((gtFile, index) => {
                 // 提取音频编号，例如 "audio5.mp3" 提取出 "5"
                 const audioNumber = gtFile.match(/\d+/)[0];
-                // 获取三个模型的对应音频
+                
+                // 获取三个模型的对应音频路径
                 const modelFiles = [
                     `sample_audio/ambisonizer_pred/sample${audioNumber}.wav`,
                     `sample_audio/diffstereo_pred/sample${audioNumber}.wav`,
                     `sample_audio/waves-spread22_pred/sample${audioNumber}.wav`
                 ];
-                // 构造完整的 4 个音频列表
+                
+                // 构造完整的 4 个音频文件路径
                 const audioFiles = [gtFile, ...modelFiles];
                 
                 const audioElement = document.createElement("div");
                 audioElement.innerHTML = `<h3>Question ${index + 1}</h3>`;
                 
+                // 为每个音频文件生成播放控件
                 audioFiles.forEach((file, i) => {
-                    const audioUrl = `https://raw.githubusercontent.com/SAKi-77/Stereo_Audio_MOS/main/sample_audio/${getFolder(file)}/${file}`;
-                    console.log('Generated Audio URL:', audioUrl); // 打印生成的音频 URL，查看是否正确
+                    const audioUrl = getAudioUrl(file);
                     audioElement.innerHTML += `
                         <p><strong>Audio ${i + 1}</strong></p>
                         <audio controls>
@@ -46,8 +54,8 @@
                         <br>
                     `;
                 });
-                
-                // 反馈输入框
+
+                // 添加反馈输入框
                 audioElement.innerHTML += `
                     <label for="feedback${index + 1}">Your Feedback:</label>
                     <input type="text" name="feedback${index + 1}" id="feedback${index + 1}" required>
@@ -56,20 +64,6 @@
                 audioContainer.appendChild(audioElement);
             });
         };
-
-        // 通过文件名推断文件夹名
-        function getFolder(file) {
-            if (file.includes('ground_truth')) {
-                return 'ground_truth';
-            } else if (file.includes('ambisonizer_pred')) {
-                return 'ambisonizer_pred';
-            } else if (file.includes('diffstereo_pred')) {
-                return 'diffstereo_pred';
-            } else if (file.includes('waves-spread22_pred')) {
-                return 'waves-spread22_pred';
-            }
-            return '';  // 如果没有匹配项返回空
-        }
     </script>
 </head>
 <body>
