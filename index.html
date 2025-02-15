@@ -1,18 +1,61 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>随机音频播放</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Random Audio Feedback</title>
+    <script>
+        // 所有 ground truth 文件
+        const numFiles = 50; // 总共有 50 组音频
+        const groundTruthFiles = Array.from({ length: numFiles }, (_, i) => `sample_audio/ground_truth/sample${i + 1}.wav`);
+        // 选择 10 组随机音频
+        function getRandomAudioFiles(files, num) {
+            return files.sort(() => Math.random() - 0.5).slice(0, num);
+        }
+        // 页面加载后动态显示音频
+        window.onload = function () {
+            const selectedGroundTruthFiles = getRandomAudioFiles(groundTruthFiles, 10);
+            const audioContainer = document.getElementById("audioContainer");
+            selectedGroundTruthFiles.forEach((gtFile, index) => {
+                // 提取音频编号，例如 "audio5.mp3" 提取出 "5"
+                const audioNumber = gtFile.match(/\d+/)[0];
+                // 获取三个模型的对应音频
+                const modelFiles = [
+                    `sample_audio/ambisonizer_pred/sample${audioNumber}.wav`,
+                    `sample_audio/diffstereo_pred/sample${audioNumber}.wav`,
+                    `sample_audio/waves-spread22_pred/sample${audioNumber}.wav`
+                ];
+                // 构造完整的 4 个音频列表
+                const audioFiles = [gtFile, ...modelFiles];
+                const audioElement = document.createElement("div");
+                audioElement.innerHTML = `<h3>Question ${index + 1}</h3>`;
+                audioFiles.forEach((file, i) => {
+                    const audioUrl = `https://raw.githubusercontent.com/SAKi-77/Stereo_Audio_MOS/main/sample_audio/${file}`;
+                    audioElement.innerHTML += `
+                        <p><strong>Audio ${i + 1}</strong></p>
+                        <audio controls>
+                            <source src="${audioUrl}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <br>
+                    `;
+                });
+                // 反馈输入框
+                audioElement.innerHTML += `
+                    <label for="feedback${index + 1}">Your Feedback:</label>
+                    <input type="text" name="feedback${index + 1}" id="feedback${index + 1}" required>
+                    <br><br>
+                `;
+                audioContainer.appendChild(audioElement);
+            });
+        };
+    </script>
 </head>
 <body>
-
-    <h1>随机音频测试</h1>
-    <button onclick="loadRandomAudio()">🎲 选择随机音频</button>
-    
-    <div id="audio-container"></div>
-
-    <script src="script.js"></script>
+    <h1>Random Audio Feedback</h1>
+    <form action="https://formspree.io/f/xgvonypg" method="POST">
+        <div id="audioContainer"></div>
+        <input type="submit" value="Submit Feedback">
+    </form>
 </body>
 </html>
